@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QvPen Export Formatter - ヘルプ</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2980b9;
+      --accent-color: #66aaff;
+      --background-color: #1e1e2e;
+      --panel-background: rgba(30, 30, 46, 0.9);
+      --text-color: #ecf0f1;
+      --border-color: #34495e;
+      --button-color: #2c3e50;
+      --button-hover: #34495e;
+      --code-background: #2d3748;
+      --code-color: #ffa07a;
+      --blockquote-background: rgba(0, 0, 0, 0.2);
+      --blockquote-border: #3498db;
+      --section-background: rgba(45, 55, 72, 0.5);
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    header h1 i {
+      margin-right: 15px;
+      color: var(--primary-color);
+    }
+
+    header p {
+      font-size: 1.2em;
+      opacity: 0.9;
+      margin-top: 10px;
+    }
+
+    .nav-buttons {
+      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    .nav-button {
+      background-color: var(--button-color);
+      color: var(--text-color);
+      border: none;
+      padding: 10px 20px;
+      margin: 0 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      transition: background-color 0.3s;
+    }
+
+    .nav-button i {
+      margin-right: 8px;
+    }
+
+    .nav-button:hover {
+      background-color: var(--button-hover);
+    }
+
+    .section {
+      background-color: var(--section-background);
+      border-radius: 8px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border-color);
+    }
+
+    .section h2 {
+      font-size: 1.8em;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .section h2 i {
+      margin-right: 12px;
+      color: var(--primary-color);
+    }
+
+    .section h3 {
+      font-size: 1.4em;
+      margin-top: 25px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .section h3 i {
+      margin-right: 10px;
+      color: var(--accent-color);
+    }
+
+    .section h4 {
+      font-size: 1.2em;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .section h4 i {
+      margin-right: 8px;
+      color: var(--text-color);
+    }
+
+    ul, ol {
+      padding-left: 25px;
+    }
+
+    ul li, ol li {
+      margin-bottom: 8px;
+    }
+
+    code {
+      background-color: var(--code-background);
+      color: var(--code-color);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    blockquote {
+      background-color: var(--blockquote-background);
+      border-left: 4px solid var(--blockquote-border);
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 0 5px 5px 0;
+    }
+
+    blockquote strong {
+      color: var(--primary-color);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .feature-card {
+      background-color: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      padding: 20px;
+      transition: transform 0.3s;
+      border: 1px solid var(--border-color);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .feature-card h4 {
+      margin-top: 0;
+      color: var(--accent-color);
+    }
+
+    .key-shortcut {
+      display: inline-block;
+      background-color: var(--code-background);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin: 0 2px;
+      border: 1px solid var(--border-color);
+    }
+
+    img.screenshot {
+      max-width: 100%;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      margin: 15px 0;
+    }
+
+    .step {
+      margin-left: 15px;
+      padding-left: 20px;
+      border-left: 2px solid var(--accent-color);
+      margin-bottom: 15px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
+
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    a:hover {
+      color: var(--primary-color);
+      text-decoration: underline;
+    }
+
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--primary-color);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+    }
+
+    .back-to-top:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 15px;
+      }
+      
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .nav-buttons {
+        flex-direction: column;
+      }
+      
+      .nav-button {
+        margin: 5px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-pen-fancy"></i> QvPen Export Formatter ヘルプ</h1>
+    </header>
+
+    <div class="nav-buttons">
+      <a href="index.html" class="nav-button"><i class="fas fa-home"></i> ホームに戻る</a>
+      <a href="#overview" class="nav-button"><i class="fas fa-info-circle"></i> 概要</a>
+      <a href="#import-export" class="nav-button"><i class="fas fa-exchange-alt"></i> インポート・エクスポート</a>
+      <a href="#editor" class="nav-button"><i class="fas fa-edit"></i> エディタ機能</a>
+      <a href="#shortcuts" class="nav-button"><i class="fas fa-keyboard"></i> ショートカット</a>
+    </div>
+
+    <section id="overview" class="section">
+      <h2><i class="fas fa-info-circle"></i> 概要</h2>
+      <p>QvPen Web Viewerは、VRChatの「QvPen」で作成された3Dペンデータを表示・編集するためのWebアプリケーションです。JSONファイルを直接読み込むだけでなく、VRChatのログからエクスポートされたデータも読み込むことができます。</p>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4><i class="fas fa-file-import"></i> 複数フォーマット対応</h4>
+          <p>JSONファイルとVRChatログファイルの両方からデータを読み込むことができます。</p>
+        </div>
+        <div class="feature-card">
+          <h4><i class="fas fa-tools"></i> 3D編集機能</h4>
+          <p>移動、回転、スケール、トリムなどの基本的な3D編集機能を備えています。</p>
+        </div>
+        <div class="feature-card">
+          <h4><i class="fas fa-save"></i> エクスポート機能</h4>
+          <p>編集したデータをJSONファイルとして保存できます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="import-export" class="section">
+      <h2><i class="fas fa-exchange-alt"></i> インポート・エクスポート</h2>
+      
+      <h3><i class="fas fa-file-import"></i> データの読み込み</h3>
+      <p>QvPen Web Viewerでは以下の2つの方法でデータを読み込むことができます：</p>
+      
+      <h4><i class="fas fa-file-code"></i> JSONファイルを直接読み込む</h4>
+      <div class="step">
+        <p>画面右上の「JSONファイルを直接読み込む」セクションから、QvPenのJSONファイルを選択します。</p>
+      </div>
+      
+      <h4><i class="fas fa-file-alt"></i> VRChatログからインポート</h4>
+      <div class="step">
+        <p>VRChatのログファイルを読み込み、QvPenのエクスポートデータを抽出できます。</p>
+        <ol>
+          <li>ログファイルを選択するか、テキストエリアにログデータを貼り付けます。</li>
+          <li>「フォーマット」ボタンをクリックして、エクスポートデータを抽出します。</li>
+          <li>抽出されたデータから読み込みたいものを選択し、「選択したデータを読み込む」をクリックします。</li>
+        </ol>
+      </div>
+
+      <h3><i class="fas fa-file-export"></i> データのエクスポート</h3>
+      <p>編集したデータは、画面右下の「JSONとして保存」ボタンからJSONファイルとして保存できます。</p>
+      <p>保存したJSONファイルは、後で読み込んで編集を続けることも、VRChatのQvPen Importerを使ってUnityプロジェクトにインポートすることもできます。</p>
+
+      <h3><i class="fas fa-vr-cardboard"></i> VRChatでの使用方法</h3>
+      <h4><i class="fas fa-upload"></i> QvPenからエクスポート</h4>
+      <div class="step">
+        <ol>
+          <li>ワールドにQvPenを設置します
+            <ul>
+              <li><code>Packages/QvPen Exporter/Prefab</code>にQvPen Exporterを導入したバージョンのQvPenが保存されています</li>
+            </ul>
+          </li>
+          <li>QvPenで描画を行います</li>
+          <li>QvPenのパネルにあるメニューから<code>Export All</code>ボタンをインタラクトして、全てのQvPenのデータをエクスポートします
+            <ul>
+              <li>エクスポートされたデータは、VRChatのログファイルに出力されます。</li>
+            </ul>
+          </li>
+        </ol>
+        <blockquote>
+          <strong><i class="fas fa-exclamation-triangle"></i> 注意</strong><br>
+          VRChatのLoggingが有効になっていることを確認してください。VRChatのSettingsから<code>Debug</code> > <code>Logging</code>を有効にする必要があります。
+        </blockquote>
+      </div>
+
+      <h4><i class="fas fa-download"></i> Unityへのインポート</h4>
+      <div class="step">
+        <ol>
+          <li>QvPen Web Viewerでエクスポート・編集したJSONファイルをUnityプロジェクトにインポートします</li>
+          <li>Unity上部メニューから<code>Tools</code> > <code>QvPenImporter</code>を選択します</li>
+          <li>表示されたウィンドウで<code>JSONファイル</code>にインポートしたJSONファイルを指定します</li>
+          <li><code>インポート</code>をクリックして、インポートを実行します</li>
+          <li>LineRendererとしてシーンに配置されます</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="editor" class="section">
+      <h2><i class="fas fa-edit"></i> エディタ機能</h2>
+      <p>QvPen Web Viewerは、3Dデータを編集するための様々なツールを提供しています。</p>
+
+      <h3><i class="fas fa-arrows-alt"></i> トランスフォームツール</h3>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4><i class="fas fa-arrows-alt"></i> 移動ツール</h4>
+          <p>オブジェクトを3次元空間内で自由に移動できます。X軸、Y軸、Z軸それぞれに沿った移動や、平面上での移動が可能です。</p>
+        </div>
+        <div class="feature-card">
+          <h4><i class="fas fa-sync-alt"></i> 回転ツール</h4>
+          <p>オブジェクトをX軸、Y軸、Z軸を中心に回転させることができます。</p>
+        </div>
+        <div class="feature-card">
+          <h4><i class="fas fa-expand-alt"></i> 拡大縮小ツール</h4>
+          <p>オブジェクトのサイズをX、Y、Z方向それぞれに拡大・縮小できます。均一スケールも可能です。</p>
+        </div>
+      </div>
+
+      <h3><i class="fas fa-cut"></i> トリム機能</h3>
+      <p>トリムモードでは、指定した領域内のデータのみを残し、それ以外を削除することができます。</p>
+      <div class="step">
+        <ol>
+          <li>「トリムモード」ボタンをクリックしてトリムモードに入ります</li>
+          <li>表示されたトリムボックスを調整して、残したい領域を指定します</li>
+          <li>「トリム適用」ボタンをクリックして、指定領域外のデータを削除します</li>
+          <li>必要に応じて「キャンセル」ボタンでトリム操作をキャンセルできます</li>
+        </ol>
+      </div>
+
+      <h3><i class="fas fa-compress-arrows-alt"></i> 正規化機能</h3>
+      <p>「原点に正規化」ボタンをクリックすると、オブジェクトの中心が座標系の原点(0,0,0)に移動します。モデルを中央に配置するのに便利です。</p>
+
+      <h3><i class="fas fa-cube"></i> 座標系の切り替え</h3>
+      <p>「ローカル座標系」ボタンをクリックすると、ローカル座標系とグローバル座標系を切り替えることができます。これにより、オブジェクト自身の向きを基準にした編集と、ワールド空間を基準にした編集を切り替えられます。</p>
+    </section>
+
+    <section id="shortcuts" class="section">
+      <h2><i class="fas fa-keyboard"></i> キーボードショートカット</h2>
+      <p>QvPen Web Viewerでは、以下のキーボードショートカットを使用できます：</p>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4><i class="fas fa-undo"></i> 元に戻す</h4>
+          <p><span class="key-shortcut">Ctrl</span> + <span class="key-shortcut">Z</span></p>
+          <p>直前の操作を取り消します。</p>
+        </div>
+        <div class="feature-card">
+          <h4><i class="fas fa-redo"></i> やり直し</h4>
+          <p><span class="key-shortcut">Ctrl</span> + <span class="key-shortcut">Y</span></p>
+          <p>取り消した操作をやり直します。</p>
+        </div>
+        <div class="feature-card">
+          <h4><i class="fas fa-sync-alt"></i> カメラリセット</h4>
+          <p><span class="key-shortcut">R</span></p>
+          <p>カメラを初期位置にリセットします。</p>
+        </div>
+        <div class="feature-card">
+          <h4><i class="fas fa-search"></i> オブジェクトフォーカス</h4>
+          <p><span class="key-shortcut">F</span></p>
+          <p>カメラをオブジェクトに合わせてフォーカスします。</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2025 QvPen Web Viewer. ブラウザで3Dペンデータを表示・編集。</p>
+      <p>Related: <a href="https://github.com/ureishi/QvPen" target="_blank">QvPen</a> | <a href="https://github.com/Dolphiiiin/qvpen-exporter" target="_blank">QvPen Exporter</a></p>
+    </footer>
+  </div>
+
+  <a href="#" class="back-to-top"><i class="fas fa-arrow-up"></i></a>
+
+  <script>
+    // スムーズスクロール機能
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          window.scrollTo({
+            top: target.offsetTop - 20,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // トップに戻るボタンの表示・非表示
+    window.addEventListener('scroll', function() {
+      const backToTop = document.querySelector('.back-to-top');
+      if (window.pageYOffset > 300) {
+        backToTop.style.display = 'flex';
+      } else {
+        backToTop.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

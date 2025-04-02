@@ -1,321 +1,1312 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QvPen Export Formatter</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --background-color: #f6f8fa;
-            --text-color: #24292e;
-            --border-color: #e1e4e8;
-            --highlight-color: #0366d6;
-            --button-background: #28a745;
-            --button-text: #ffffff;
-            --input-background: #ffffff;
-            --input-text: #24292e;
-            --warning-color: #d73a49;
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #66aaff;
+            --background-color: #1e1e2e;
+            --panel-background: rgba(30, 30, 46, 0.8);
+            --text-color: #ecf0f1;
+            --border-color: #34495e;
+            --button-color: #2c3e50;
+            --button-hover: #34495e;
+            --active-button: #3498db;
+            --active-button-hover: #2980b9;
+            --input-background: #2c3e50;
+            --input-text: #ecf0f1;
+            --input-border: #34495e;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+        html, body {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Roboto', sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
         }
 
-        header, footer {
-            background-color: var(--input-background);
-            border-bottom: 1px solid var(--border-color);
-            padding: 10px 20px;
-            text-align: center;
+        #renderCanvas {
+            width: 100%;
+            height: 100%;
+            touch-action: none;
         }
 
-        header h1, footer p {
-            margin: 0;
+        .panel {
+            position: absolute;
+            background-color: var(--panel-background);
+            padding: 15px;
+            border-radius: 8px;
+            color: var(--text-color);
+            z-index: 100;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
         }
 
-        footer a {
-            color: var(--highlight-color);
-            text-decoration: none;
+        .panel h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-weight: 500;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
         }
 
-        footer a:hover {
+        .panel h3 i {
+            margin-right: 8px;
+        }
+
+        .panel h4 {
+            margin: 12px 0 8px 0;
+            font-weight: 400;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+        }
+
+        .panel h4 i {
+            margin-right: 6px;
+            font-size: 14px;
+        }
+
+        #fileUploadContainer {
+            top: 15px;
+            right: 15px;
+            width: 280px;
+            max-width: 100%;
+        }
+
+        #fileInfo {
+            margin-top: 10px;
+            font-size: 13px;
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .defaultFile {
+            margin-top: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: var(--accent-color);
+        }
+
+        .defaultFile i {
+            margin-right: 6px;
+        }
+
+        .defaultFile:hover {
             text-decoration: underline;
         }
 
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: var(--input-background);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(27, 31, 35, 0.12), 0 1px 2px rgba(27, 31, 35, 0.24);
-        }
-
-        h1 {
-            font-size: 2em;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.3em;
-            margin-bottom: 1em;
-        }
-
-        textarea, input[type="file"] {
+        /* 最適化されたフォーム要素のスタイル */
+        input[type="file"] {
             width: 100%;
+            padding: 8px;
+            margin: 5px 0;
             background-color: var(--input-background);
             color: var(--input-text);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 10px;
-            box-sizing: border-box;
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            cursor: pointer;
         }
 
-        #logInput {
-            height: 200px;
+        input[type="file"]::-webkit-file-upload-button {
+            background-color: var(--button-color);
+            color: var(--text-color);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        input[type="file"]::-webkit-file-upload-button:hover {
+            background-color: var(--button-hover);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--input-background);
+            color: var(--input-text);
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            resize: vertical;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
         }
 
         button {
-            background-color: var(--button-background);
-            color: var(--button-text);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 10px 20px;
-            margin: 10px 0;
+            padding: 8px 12px;
+            background-color: var(--button-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1em;
+            transition: background-color 0.2s;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button i {
+            margin-right: 6px;
         }
 
         button:hover {
-            background-color: var(--highlight-color);
+            background-color: var(--button-hover);
         }
 
+        button.primary {
+            background-color: var(--primary-color);
+        }
+
+        button.primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        button.success {
+            background-color: var(--success-color);
+        }
+
+        button.error {
+            background-color: var(--error-color);
+        }
+
+        /* エクスポートリストのスタイル */
         #exportList {
-            margin: 20px 0;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .export-item {
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background-color: var(--input-background);
+            margin: 6px 0;
+            padding: 8px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
         }
 
-        #message {
-            color: var(--warning-color);
-            margin: 10px 0;
+        .export-item:hover {
+            background-color: rgba(0, 0, 0, 0.3);
         }
 
-        article {
-            margin-top: 40px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-            color: var(--text-color);
+        .export-item input[type="radio"] {
+            margin-right: 8px;
         }
 
-        article h2, article h3 {
+        /* 編集ツールのスタイル */
+        #editingTools {
+            left: 15px;
+            top: 15px;
+        }
+
+        #editingTools button {
+            margin: 3px;
+            padding: 8px 12px;
+            min-width: 120px;
+            text-align: left;
+        }
+
+        #editingTools button i {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+
+        #editingTools button.active {
+            background-color: var(--active-button);
+        }
+
+        #editingTools button.active:hover {
+            background-color: var(--active-button-hover);
+        }
+
+        .toolSection {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.3em;
-            margin-bottom: 1em;
-            font-weight: 600;
         }
 
-        article h2 {
-            font-size: 1.5em;
+        .toolSection:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
         }
 
-        article h3 {
-            font-size: 1.25em;
+        /* トランスフォームインスペクターのスタイル */
+        #transformInspector {
+            left: 15px;
+            bottom: 15px;
         }
 
-        article p, article ul, article ol {
-            margin: 10px 0;
-            line-height: 1.6;
+        .transformRow {
+            display: flex;
+            margin: 5px 0;
+            align-items: center;
         }
 
-        article ul, article ol {
-            padding-left: 20px;
+        .transformLabel {
+            width: 50px;
+            display: inline-block;
+            font-size: 14px;
         }
 
-        article ul li, article ol li {
-            list-style-type: disc;
-        }
-
-        article code {
+        .transformInput {
+            width: 60px;
             background-color: var(--input-background);
-            border-radius: 3px;
-            padding: 0.2em 0.4em;
-            font-size: 85%;
-            color: #e83e8c;
+            color: var(--input-text);
+            border: 1px solid var(--input-border);
+            border-radius: 4px;
+            padding: 4px 6px;
+            margin: 0 4px;
+            font-size: 14px;
         }
 
-        article blockquote {
-            background: var(--input-background);
-            border-left: 10px solid var(--border-color);
-            margin: 1.5em 10px;
-            padding: 0.5em 10px;
-            color: #6a737d;
+        /* 保存機能のスタイル */
+        #saveFileContainer {
+            right: 15px;
+            bottom: 15px;
         }
 
-        article a {
-            color: var(--highlight-color);
+        #saveButton {
+            padding: 10px 16px;
+            background-color: var(--success-color);
+            font-weight: 500;
+        }
+
+        #saveButton:hover {
+            filter: brightness(1.1);
+        }
+
+        /* メッセージスタイル */
+        #message {
+            color: var(--error-color);
+            font-size: 14px;
+            margin: 8px 0;
+            padding: 8px;
+            background-color: rgba(231, 76, 60, 0.15);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        #message i {
+            margin-right: 6px;
+        }
+
+        /* レスポンシブデザイン */
+        @media (max-width: 768px) {
+            .panel {
+                padding: 10px;
+            }
+
+            #fileUploadContainer {
+                width: 250px;
+            }
+
+            #editingTools button {
+                min-width: 100px;
+                font-size: 12px;
+            }
+
+            .transformInput {
+                width: 50px;
+            }
+        }
+
+        /* ポップアップヘルプスタイル */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-content {
+            background-color: var(--panel-background);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .popup-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .popup-header h2 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .popup-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+            padding: 0;
+        }
+
+        .close-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* チュートリアルスタイル */
+        #tutorialContainer {
+            margin-bottom: 20px;
+        }
+
+        #tutorialProgress {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-indicator {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 20%; /* 初期値：5ステップの1つ目 = 20% */
+            transition: width 0.3s ease;
+        }
+
+        .tutorial-step {
+            min-height: 300px;
+        }
+
+        .tutorial-step h3 {
+            display: flex;
+            align-items: center;
+            margin-top: 0;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .tutorial-step h3 i {
+            margin-right: 10px;
+        }
+
+        .tutorial-step h4 {
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .tutorial-step h4 i {
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
+
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .feature-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 10px 15px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-item i {
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .tool-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .tool-item i {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+
+        .shortcut-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .shortcut-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .key-combo {
+            margin-bottom: 10px;
+        }
+
+        .key-combo span {
+            display: inline-block;
+            background-color: var(--input-background);
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin: 0 2px;
+            border: 1px solid var(--border-color);
+            font-family: "Courier New", monospace;
+        }
+
+        .shortcut-desc {
+            color: var(--accent-color);
+        }
+
+        .tutorial-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .tutorial-nav-btn {
+            padding: 8px 16px;
+            background-color: var(--button-color);
+            border: none;
+            border-radius: 4px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .tutorial-nav-btn:hover {
+            background-color: var(--button-hover);
+        }
+
+        .tutorial-nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tutorial-nav-btn i {
+            margin-right: 6px;
+        }
+
+        .tutorial-nav-btn i.fa-chevron-right {
+            margin-right: 0;
+            margin-left: 6px;
+        }
+
+        .tutorial-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .dot.active {
+            background-color: var(--primary-color);
+        }
+
+        .tutorial-footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .detailed-help-link {
+            color: var(--accent-color);
+            display: inline-flex;
+            align-items: center;
             text-decoration: none;
+            transition: color 0.3s;
         }
 
-        article a:hover {
+        .detailed-help-link i {
+            margin-right: 6px;
+        }
+
+        .detailed-help-link:hover {
+            color: var(--primary-color);
             text-decoration: underline;
         }
+
+        .note {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 10px 15px;
+            border-left: 3px solid var(--primary-color);
+            border-radius: 0 4px 4px 0;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .note i {
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
+
+        code {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Courier New", monospace;
+            font-size: 0.9em;
+        }
+
+        .tool-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .tool-wrapper button {
+            flex: 1;
+        }
+
+        .trim-buttons {
+            justify-content: space-between;
+        }
+        
+        .help-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            color: var(--accent-color);
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s, transform 0.2s;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+        
+        .help-icon:hover {
+            opacity: 1;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+        
+        /* ツールヘルプポップアップの新しいスタイル */
+        .tool-help-popup {
+            position: fixed; /* absoluteではなくfixedに変更 */
+            background-color: var(--panel-background);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            width: 280px;
+            max-width: 90vw;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none; /* 表示・非表示をdisplayプロパティで制御 */
+        }
+        
+        .tool-help-popup h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .tool-help-popup h4 i {
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
+        
+        .tool-help-popup p {
+            margin: 10px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .tool-help-tips {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 10px 12px;
+            border-left: 3px solid var(--accent-color);
+            border-radius: 0 4px 4px 0;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        .tool-help-tips strong {
+            color: var(--accent-color);
+            display: block;
+            margin-bottom: 4px;
+        }
     </style>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
 </head>
 <body>
-<header>
-    <h1>QvPen Export Formatter</h1>
-</header>
-<div class="container">
-    <input type="file" id="fileInput">
-    <textarea id="logInput" placeholder="ログデータを貼り付けてください"></textarea>
-    <button id="decodeButton">フォーマット</button>
-    <div id="exportList"></div>
-    <div id="message" style="display:none;">データが見つかりませんでした。</div>
-    <button id="saveButton" style="display:none;">選択したデータを保存</button>
-    <article>
-        <h2>QvPen Exporterについて</h2>
-        <p>QvPenにエクスポート機能を追加した拡張機能と、エクスポートデータをシーンへLineRendererとしてインポートするEditor拡張機能です。</p>
+    <canvas id="renderCanvas"></canvas>
+    <div id="fileUploadContainer" class="panel">
+        <h3><i class="fas fa-pen-fancy"></i> QvPen Web Viewer</h3>
+        <div>
+            <h4><i class="fas fa-file-import"></i> JSONファイルを直接読み込む</h4>
+            <input type="file" id="fileInput" accept=".json">
+        </div>
+        <div style="margin-top: 15px;">
+            <h4><i class="fas fa-file-code"></i> VRChatログからエクスポート</h4>
+            <input type="file" id="logFileInput" accept=".txt,.log">
+            <textarea id="logInput" placeholder="ログデータを貼り付けてください" style="width: 100%; height: 100px; margin-top: 5px;"></textarea>
+            <button id="decodeButton" class="primary" style="margin-top: 8px;"><i class="fas fa-code"></i> フォーマット</button>
+            <div id="exportList" style="margin-top: 10px;"></div>
+            <div id="message" style="display:none;"><i class="fas fa-exclamation-triangle"></i> データが見つかりませんでした。</div>
+            <button id="loadExportButton" class="primary" style="display:none; margin-top: 8px;"><i class="fas fa-file-download"></i> 選択したデータを読み込む</button>
+        </div>
+        <div id="fileInfo"><i class="fas fa-info-circle"></i> 未読み込み</div>
+        <div class="defaultFile" id="loadDefault"><i class="fas fa-shapes"></i> デフォルトファイルを読み込む (payapaya_azarashi.json)</div>
+        <div class="helpLink" style="margin-top: 10px; display: flex; align-items: center; color: var(--accent-color); cursor: pointer;">
+            <a href="help.html" style="color: inherit; text-decoration: none; display: flex; align-items: center;">
+                <i class="fas fa-question-circle" style="margin-right: 6px;"></i> ヘルプドキュメントを表示
+            </a>
+        </div>
+        <div class="helpLink" style="margin-top: 5px; display: flex; align-items: center; color: var(--accent-color); cursor: pointer;" id="showHelpPopup">
+            <i class="fas fa-lightbulb" style="margin-right: 6px;"></i> クイックチュートリアルを表示
+        </div>
+    </div>
 
-        <h3>Installation</h3>
-        <ol>
-            <li>vpmリポジトリを追加します
-                <a href="https://dolphiiiin.github.io/vpm-repos/">com.dolphiiiin.vpm</a>
-            </li>
-            <li>VCCまたはALCOMを開き、<code>QvPen Exporter</code>(<code>com.dolphiiiin.qvpen-exporter</code>)をインストールします</li>
-        </ol>
+    <!-- 最適化された編集ツールUI -->
+    <div id="editingTools" class="panel">
+        <h3><i class="fas fa-tools"></i> 編集ツール</h3>
+        <div class="toolSection">
+            <div class="tool-wrapper">
+                <button id="normalizeBtn"><i class="fas fa-compress-arrows-alt"></i> 原点に正規化</button>
+                <span class="help-icon" data-tool="normalize"><i class="fas fa-question-circle"></i></span>
+            </div>
+        </div>
+        <div class="toolSection">
+            <div class="tool-wrapper">
+                <button id="moveToolBtn" class="active" data-tool="0"><i class="fas fa-arrows-alt"></i> 移動</button>
+                <span class="help-icon" data-tool="move"><i class="fas fa-question-circle"></i></span>
+            </div>
+            <div class="tool-wrapper">
+                <button id="rotateToolBtn" data-tool="1"><i class="fas fa-sync-alt"></i> 回転</button>
+                <span class="help-icon" data-tool="rotate"><i class="fas fa-question-circle"></i></span>
+            </div>
+            <div class="tool-wrapper">
+                <button id="scaleToolBtn" data-tool="2"><i class="fas fa-expand-alt"></i> 拡大縮小</button>
+                <span class="help-icon" data-tool="scale"><i class="fas fa-question-circle"></i></span>
+            </div>
+        </div>
+        <div class="toolSection">
+            <div class="tool-wrapper">
+                <button id="trimToolBtn" data-tool="3"><i class="fas fa-cut"></i> トリムモード</button>
+                <span class="help-icon" data-tool="trim"><i class="fas fa-question-circle"></i></span>
+            </div>
+            <div class="tool-wrapper trim-buttons">
+                <button id="applyTrimBtn" class="success" style="display:none;"><i class="fas fa-check"></i> トリム適用</button>
+                <button id="cancelTrimBtn" class="error" style="display:none;"><i class="fas fa-times"></i> キャンセル</button>
+            </div>
+            <!-- トリム範囲の数値入力フィールドを追加 -->
+            <div id="trimRangeInputs" style="display:none; margin-top: 8px;">
+                <h4 style="margin: 5px 0;"><i class="fas fa-ruler"></i> トリム範囲設定</h4>
+                <div class="transformRow">
+                    <span class="transformLabel">位置X:</span>
+                    <input type="number" id="trimPosX" class="transformInput" step="0.1">
+                    <span class="transformLabel">位置Y:</span>
+                    <input type="number" id="trimPosY" class="transformInput" step="0.1">
+                    <span class="transformLabel">位置Z:</span>
+                    <input type="number" id="trimPosZ" class="transformInput" step="0.1">
+                </div>
+                <div class="transformRow">
+                    <span class="transformLabel">幅X:</span>
+                    <input type="number" id="trimSizeX" class="transformInput" step="0.1" min="0.1">
+                    <span class="transformLabel">高さY:</span>
+                    <input type="number" id="trimSizeY" class="transformInput" step="0.1" min="0.1">
+                    <span class="transformLabel">奥行Z:</span>
+                    <input type="number" id="trimSizeZ" class="transformInput" step="0.1" min="0.1">
+                </div>
+            </div>
+        </div>
+        <div class="toolSection">
+            <div class="tool-wrapper">
+                <button id="coordinateToggleBtn" class="active"><i class="fas fa-cube"></i> ローカル座標系</button>
+                <span class="help-icon" data-tool="coordinate"><i class="fas fa-question-circle"></i></span>
+            </div>
+        </div>
+    </div>
 
-        <h3>Dependencies</h3>
-        <ul>
-            <li><a href="https://github.com/ureishi/QvPen">QvPen</a> 3.3.3 or later</li>
-        </ul>
+    <!-- 最適化されたトランスフォームインスペクタUI -->
+    <div id="transformInspector" class="panel">
+        <h3><i class="fas fa-sliders-h"></i> トランスフォーム</h3>
+        <div class="transformRow">
+            <span class="transformLabel">位置X:</span>
+            <input type="number" id="posX" class="transformInput" step="0.1">
+            <span class="transformLabel">位置Y:</span>
+            <input type="number" id="posY" class="transformInput" step="0.1">
+            <span class="transformLabel">位置Z:</span>
+            <input type="number" id="posZ" class="transformInput" step="0.1">
+        </div>
+        <div class="transformRow">
+            <span class="transformLabel">回転X:</span>
+            <input type="number" id="rotX" class="transformInput" step="0.1">
+            <span class="transformLabel">回転Y:</span>
+            <input type="number" id="rotY" class="transformInput" step="0.1">
+            <span class="transformLabel">回転Z:</span>
+            <input type="number" id="rotZ" class="transformInput" step="0.1">
+        </div>
+        <div class="transformRow">
+            <span class="transformLabel">縮尺X:</span>
+            <input type="number" id="scaleX" class="transformInput" step="0.1" value="1.0">
+            <span class="transformLabel">縮尺Y:</span>
+            <input type="number" id="scaleY" class="transformInput" step="0.1" value="1.0">
+            <span class="transformLabel">縮尺Z:</span>
+            <input type="number" id="scaleZ" class="transformInput" step="0.1" value="1.0">
+        </div>
+    </div>
 
-        <h3>Usage</h3>
-        <h4>Export</h4>
-        <ol>
-            <li>ワールドにQvPenを設置します
-                <ul>
-                    <li><code>Packages/QvPen Exporter/Prefab</code>にQvPen Exporterを導入したバージョンのQvPenが保存されています</li>
-                </ul>
-            </li>
-            <li>QvPenで描画を行います</li>
-            <li>QvPenのパネルにあるメニューに追加されているボタン<code>Export All</code>をインタラクトすることで、インタラクトしたパネルに属する全てのQvPenのデータをエクスポートします
-                <ul>
-                    <li>エクスポートされたデータは、VRChatのログファイルに出力されます。</li>
-                </ul>
-                <blockquote>
-                    <strong>⚠️Warning</strong><br>
-                    VRChatのLoggingが有効になっていることを確認してください。VRChatのSettingsから<code>Debug</code> > <code>Logging</code>を有効になっていることを確認します。
-                </blockquote>
-            </li>
-            <li>エクスポートしたデータをQvPen Export Formatterで変換します
-                <ul>
-                    <li><a href="https://dolphiiiin.github.io/qvpen-export-formatter/">QvPen Export Formatter</a></li>
-                    <li>ページを開いてVRChatのログファイルをペーストするか、ファイルを参照して選択します</li>
-                    <li><code>フォーマット</code>をクリックして、変換を実行します</li>
-                    <li>エクスポートするデータを選択して、変換されたjsonファイルをダウンロードします</li>
-                </ul>
-            </li>
-        </ol>
+    <!-- 最適化された保存UI -->
+    <div id="saveFileContainer" class="panel">
+        <button id="saveButton"><i class="fas fa-save"></i> JSONとして保存</button>
+    </div>
 
-        <h4>Import</h4>
-        <ol>
-            <li>Unityプロジェクトへエクスポートして変換したjsonファイルを、インポートします</li>
-            <li><code>Tools</code> > <code>QvPenImporter</code>を選択します</li>
-            <li><code>JSONファイル</code>にインポートしたjsonファイルを指定します</li>
-            <li><code>インポート</code>をクリックして、インポートを実行します</li>
-        </ol>
-    </article>
-</div>
-<footer>
-    <p>&copy; 2023 Dolphiiiin. <a href="https://github.com/Dolphiiiin">GitHub</a></p>
-</footer>
-<script>
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('logInput').value = e.target.result;
-            };
-            reader.readAsText(file);
-        }
-    });
+    <!-- ポップアップヘルプ -->
+    <div id="helpPopup" class="popup-overlay" style="display: none;">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2><i class="fas fa-question-circle"></i> QvPen Web Viewer ヘルプ</h2>
+                <button id="closeHelp" class="close-button"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="popup-body">
+                <div id="tutorialContainer">
+                    <div id="tutorialProgress">
+                        <div class="progress-bar">
+                            <div class="progress-indicator"></div>
+                        </div>
+                    </div>
+                    <div class="tutorial-step" data-step="1">
+                        <h3><i class="fas fa-info-circle"></i> QvPen Web Viewerについて</h3>
+                        <p>このツールでは、VRChatの「QvPen」で作成した3Dペンデータを表示・編集できます。JSONファイルの直接読み込みだけでなく、VRChatのログからエクスポートされたデータも読み込めます。</p>
+                        <div class="feature-list">
+                            <div class="feature-item"><i class="fas fa-file-import"></i> 複数フォーマット対応</div>
+                            <div class="feature-item"><i class="fas fa-tools"></i> 3D編集機能</div>
+                            <div class="feature-item"><i class="fas fa-history"></i> 履歴管理</div>
+                            <div class="feature-item"><i class="fas fa-save"></i> エクスポート機能</div>
+                        </div>
+                    </div>
+                    <div class="tutorial-step" data-step="2" style="display: none;">
+                        <h3><i class="fas fa-file-import"></i> データの読み込み</h3>
+                        <p>以下の2つの方法でデータを読み込めます：</p>
+                        <ol>
+                            <li><strong>JSONファイルを直接読み込む</strong><br>画面右上のファイル選択からQvPenのJSONファイルを選択</li>
+                            <li><strong>VRChatログからエクスポート</strong><br>ログファイルを選択するか、テキストエリアにログデータを貼り付け、「フォーマット」ボタンをクリック</li>
+                        </ol>
+                        <p class="note"><i class="fas fa-lightbulb"></i> 初めての方は「デフォルトファイルを読み込む」からサンプルデータを試せます。</p>
+                    </div>
+                    <div class="tutorial-step" data-step="3" style="display: none;">
+                        <h3><i class="fas fa-edit"></i> 編集ツール</h3>
+                        <p>左側のツールパネルから以下の操作ができます：</p>
+                        <div class="tool-grid">
+                            <div class="tool-item">
+                                <i class="fas fa-arrows-alt"></i>
+                                <span>移動</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>回転</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-expand-alt"></i>
+                                <span>拡大縮小</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-cut"></i>
+                                <span>トリム</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-compress-arrows-alt"></i>
+                                <span>正規化</span>
+                            </div>
+                            <div class="tool-item">
+                                <i class="fas fa-cube"></i>
+                                <span>座標系</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tutorial-step" data-step="4" style="display: none;">
+                        <h3><i class="fas fa-keyboard"></i> ショートカット</h3>
+                        <div class="shortcut-grid">
+                            <div class="shortcut-item">
+                                <div class="key-combo"><span>Ctrl</span> + <span>Z</span></div>
+                                <div class="shortcut-desc">元に戻す</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="key-combo"><span>Ctrl</span> + <span>Y</span></div>
+                                <div class="shortcut-desc">やり直し</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="key-combo"><span>R</span></div>
+                                <div class="shortcut-desc">カメラリセット</div>
+                            </div>
+                            <div class="shortcut-item">
+                                <div class="key-combo"><span>F</span></div>
+                                <div class="shortcut-desc">オブジェクトフォーカス</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tutorial-step" data-step="5" style="display: none;">
+                        <h3><i class="fas fa-vr-cardboard"></i> VRChatとの連携</h3>
+                        <h4><i class="fas fa-upload"></i> QvPenからエクスポート</h4>
+                        <ol>
+                            <li>VRChatのQvPenで描画</li>
+                            <li>パネルメニューから<code>Export All</code>ボタンでエクスポート</li>
+                            <li>このツールでログファイルを読み込み編集</li>
+                        </ol>
+                        <h4><i class="fas fa-download"></i> Unityへのインポート</h4>
+                        <ol>
+                            <li>JSONファイルをUnityプロジェクトにインポート</li>
+                            <li><code>Tools</code> > <code>QvPenImporter</code>を選択</li>
+                            <li>インポート実行するとLineRendererとして配置</li>
+                        </ol>
+                        <p class="note"><i class="fas fa-exclamation-triangle"></i> VRChatのLoggingが有効になっていることを確認してください。</p>
+                    </div>
+                </div>
+                <div class="tutorial-nav">
+                    <button id="prevTutorial" class="tutorial-nav-btn"><i class="fas fa-chevron-left"></i> 前へ</button>
+                    <div class="tutorial-dots">
+                        <span class="dot active" data-step="1"></span>
+                        <span class="dot" data-step="2"></span>
+                        <span class="dot" data-step="3"></span>
+                        <span class="dot" data-step="4"></span>
+                        <span class="dot" data-step="5"></span>
+                    </div>
+                    <button id="nextTutorial" class="tutorial-nav-btn">次へ <i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="tutorial-footer">
+                    <a href="help.html" target="_blank" class="detailed-help-link">
+                        <i class="fas fa-external-link-alt"></i> 詳細なヘルプページを開く
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    document.getElementById('decodeButton').addEventListener('click', function() {
-        const input = document.getElementById('logInput').value;
-        const exportPattern = /(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}).*?\[QVPEN_EXPORTER\] \[START_EXPORT\](.*?)\[QVPEN_EXPORTER\] \[END_EXPORT\]/gs;
-        const base64Pattern = /\[QVPEN_EXPORTER\] \[START\](.*?)\[END\]/g;
+    <!-- ツールヘルプポップアップ -->
+    <div id="toolHelpPopup" class="tool-help-popup">
+        <h4><i class="fas fa-info-circle"></i> <span id="toolHelpTitle">ツールヘルプ</span></h4>
+        <p id="toolHelpDescription">ツールの説明がここに表示されます。</p>
+        <div class="tool-help-tips">
+            <strong>ヒント:</strong>
+            <span id="toolHelpTips">役立つヒントがここに表示されます。</span>
+        </div>
+    </div>
 
-        const exportList = document.getElementById('exportList');
-        const message = document.getElementById('message');
-        exportList.innerHTML = '';
-        message.style.display = 'none';
-        let exports = [];
-        let match;
+    <script type="module" src="qvpen-viewer.js"></script>
+    
+    <!-- ログファイル処理用スクリプト -->
+    <script>
+        // ログファイル読み込み処理
+        document.getElementById('logFileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logInput').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        });
 
-        while ((match = exportPattern.exec(input)) !== null) {
-            const timestamp = match[1];
-            const exportData = match[2];
-            const base64Data = [];
-            let base64Match;
+        // ログデータのフォーマット処理
+        document.getElementById('decodeButton').addEventListener('click', function() {
+            const input = document.getElementById('logInput').value;
+            const exportPattern = /(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}).*?\[QVPEN_EXPORTER\] \[START_EXPORT\](.*?)\[QVPEN_EXPORTER\] \[END_EXPORT\]/gs;
+            const base64Pattern = /\[QVPEN_EXPORTER\] \[START\](.*?)\[END\]/g;
 
-            while ((base64Match = base64Pattern.exec(exportData)) !== null) {
-                try {
-                    const jsonString = atob(base64Match[1]);
-                    const jsonObject = JSON.parse(jsonString);
-                    base64Data.push(jsonObject);
-                } catch (e) {
-                    console.error('デコードエラー:', e);
+            const exportList = document.getElementById('exportList');
+            const message = document.getElementById('message');
+            exportList.innerHTML = '';
+            message.style.display = 'none';
+            let exports = [];
+            let match;
+
+            while ((match = exportPattern.exec(input)) !== null) {
+                const timestamp = match[1];
+                const exportData = match[2];
+                const base64Data = [];
+                let base64Match;
+
+                while ((base64Match = base64Pattern.exec(exportData)) !== null) {
+                    try {
+                        const jsonString = atob(base64Match[1]);
+                        const jsonObject = JSON.parse(jsonString);
+                        base64Data.push(jsonObject);
+                    } catch (e) {
+                        console.error('デコードエラー:', e);
+                    }
+                }
+
+                if (base64Data.length > 0) {
+                    exports.push({
+                        timestamp: timestamp,
+                        data: base64Data
+                    });
+
+                    const div = document.createElement('div');
+                    div.className = 'export-item';
+                    div.innerHTML = `
+                        <input type="radio" name="export" value="${exports.length - 1}">
+                        <label><i class="fas fa-clock"></i> エクスポート時刻: ${timestamp} <span class="badge">(${base64Data.length}データ)</span></label>
+                    `;
+                    exportList.appendChild(div);
                 }
             }
 
-            if (base64Data.length > 0) {
-                exports.push({
-                    timestamp: timestamp,
-                    data: base64Data
-                });
-
-                const div = document.createElement('div');
-                div.className = 'export-item';
-                div.innerHTML = `
-                        <input type="radio" name="export" value="${exports.length - 1}">
-                        <label>エクスポート時刻: ${timestamp} (${base64Data.length} データ)</label>
-                    `;
-                exportList.appendChild(div);
+            if (exports.length === 0) {
+                message.style.display = 'block';
+            } else {
+                document.getElementById('loadExportButton').style.display = 'block';
             }
-        }
 
-        if (exports.length === 0) {
-            message.style.display = 'block';
-        } else {
-            document.getElementById('saveButton').style.display = 'block';
-        }
+            // エクスポートしたデータを選択して読み込む処理
+            document.getElementById('loadExportButton').onclick = function() {
+                const selected = document.querySelector('input[name="export"]:checked');
+                if (selected) {
+                    const selectedData = exports[selected.value];
+                    const resultJson = {
+                        timestamp: selectedData.timestamp,
+                        exportedData: selectedData.data
+                    };
+                    
+                    // ここでqvpen-viewer.jsのデータ読み込み関数を呼び出す
+                    if (window.loadQvPenData && typeof window.loadQvPenData === 'function') {
+                        window.loadQvPenData(resultJson);
+                        document.getElementById('fileInfo').innerHTML = `<i class="fas fa-check-circle"></i> 読み込み完了: エクスポート時刻 ${selectedData.timestamp}`;
+                    } else {
+                        console.error('loadQvPenData関数が見つかりません');
+                    }
+                }
+            };
+        });
 
-        document.getElementById('saveButton').onclick = function() {
-            const selected = document.querySelector('input[name="export"]:checked');
-            if (selected) {
-                const selectedData = exports[selected.value];
-                const resultJson = {
-                    timestamp: selectedData.timestamp,
-                    exportedData: selectedData.data
-                };
-                const blob = new Blob([JSON.stringify(resultJson, null, 2)],
-                    { type: 'application/json' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `export_${selectedData.timestamp.replace(/[^0-9]/g, '_')}.json`;
-                link.click();
+        // ポップアップヘルプ用スクリプト
+        document.addEventListener('DOMContentLoaded', function() {
+            // 要素の取得
+            const helpPopup = document.getElementById('helpPopup');
+            const showHelpBtn = document.getElementById('showHelpPopup');
+            const closeHelpBtn = document.getElementById('closeHelp');
+            const prevBtn = document.getElementById('prevTutorial');
+            const nextBtn = document.getElementById('nextTutorial');
+            const dots = document.querySelectorAll('.dot');
+            const progressIndicator = document.querySelector('.progress-indicator');
+            
+            let currentStep = 1;
+            const totalSteps = 5;
+            
+            // ポップアップを表示
+            showHelpBtn.addEventListener('click', function() {
+                helpPopup.style.display = 'flex';
+                updateNavigation();
+            });
+            
+            // ポップアップを閉じる
+            closeHelpBtn.addEventListener('click', function() {
+                helpPopup.style.display = 'none';
+            });
+            
+            // ESCキーでポップアップを閉じる
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && helpPopup.style.display === 'flex') {
+                    helpPopup.style.display = 'none';
+                }
+            });
+            
+            // ポップアップ外をクリックして閉じる
+            helpPopup.addEventListener('click', function(e) {
+                if (e.target === helpPopup) {
+                    helpPopup.style.display = 'none';
+                }
+            });
+            
+            // 前のステップへ
+            prevBtn.addEventListener('click', function() {
+                if (currentStep > 1) {
+                    goToStep(currentStep - 1);
+                }
+            });
+            
+            // 次のステップへ
+            nextBtn.addEventListener('click', function() {
+                if (currentStep < totalSteps) {
+                    goToStep(currentStep + 1);
+                }
+            });
+            
+            // ドットをクリックしてステップに移動
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    goToStep(parseInt(dot.dataset.step));
+                });
+            });
+            
+            // 指定したステップへ移動
+            function goToStep(step) {
+                // 現在のステップを非表示に
+                document.querySelector(`.tutorial-step[data-step="${currentStep}"]`).style.display = 'none';
+                document.querySelector(`.dot[data-step="${currentStep}"]`).classList.remove('active');
+                
+                // 新しいステップを表示
+                currentStep = step;
+                document.querySelector(`.tutorial-step[data-step="${currentStep}"]`).style.display = 'block';
+                document.querySelector(`.dot[data-step="${currentStep}"]`).classList.add('active');
+                
+                // プログレスバーを更新
+                progressIndicator.style.width = `${(currentStep / totalSteps) * 100}%`;
+                
+                // ナビゲーションボタンの状態を更新
+                updateNavigation();
+            }
+            
+            // ナビゲーションボタンの状態を更新
+            function updateNavigation() {
+                prevBtn.disabled = currentStep === 1;
+                nextBtn.disabled = currentStep === totalSteps;
+                
+                // 最後のステップの場合は「完了」に変更
+                if (currentStep === totalSteps) {
+                    nextBtn.innerHTML = '<i class="fas fa-check"></i> 完了';
+                } else {
+                    nextBtn.innerHTML = '次へ <i class="fas fa-chevron-right"></i>';
+                }
+            }
+        });
+
+        // ツールヘルプの内容定義
+        const toolHelpContent = {
+            normalize: {
+                title: "原点に正規化",
+                description: "モデルの中心を座標系の原点(0,0,0)に移動します。モデルが中央からずれている場合に便利です。",
+                tips: "複数のモデルを合成する前に使用すると、各モデルの位置を揃えやすくなります。また、編集操作を行った後にトランスフォームを初期化するのにも役立ちます。"
+            },
+            move: {
+                title: "移動ツール",
+                description: "モデルを3次元空間内で自由に移動できます。X軸（赤）、Y軸（緑）、Z軸（青）それぞれに沿った移動や、平面上での移動が可能です。",
+                tips: "軸の色を覚えておくと便利です：赤=X軸、緑=Y軸、青=Z軸。平面上での移動には、2つの軸の間の四角形のハンドルを使用します。"
+            },
+            rotate: {
+                title: "回転ツール",
+                description: "モデルをX軸、Y軸、Z軸を中心に回転させることができます。各軸ごとのリングをドラッグして回転します。",
+                tips: "回転の中心は、モデルの中心（ローカル座標系）またはワールド原点（グローバル座標系）になります。座標系を切り替えて使い分けましょう。"
+            },
+            scale: {
+                title: "拡大縮小ツール",
+                description: "モデルのサイズをX、Y、Z方向それぞれに拡大・縮小できます。均一スケール（すべての方向に同じ比率）も可能です。",
+                tips: "中央のハンドルをドラッグすると均一スケールになります。単一の軸だけをスケールしたい場合は、その軸のハンドルを使用してください。"
+            },
+            trim: {
+                title: "トリムモード",
+                description: "指定した領域内のデータのみを残し、それ以外を削除します。トリムボックスを調整して範囲を指定します。",
+                tips: "トリムボックスは各面をドラッグしてサイズ変更できます。適用前に元のモデルを保存しておくと安心です。トリム後のデータは元に戻せません。"
+            },
+            coordinate: {
+                title: "座標系切り替え",
+                description: "ローカル座標系とグローバル座標系を切り替えます。ローカル座標系はモデル自身の向きを基準にし、グローバル座標系はワールド空間を基準にします。",
+                tips: "複雑な向きになったモデルを編集する際は、ローカル座標系が便利です。複数のオブジェクトを同じ向きに揃えるにはグローバル座標系が適しています。"
             }
         };
-    });
-</script>
+
+        // ツールヘルプの初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            const toolHelpIcons = document.querySelectorAll('.help-icon');
+            const toolHelpPopup = document.getElementById('toolHelpPopup');
+            const toolHelpTitle = document.getElementById('toolHelpTitle');
+            const toolHelpDescription = document.getElementById('toolHelpDescription');
+            const toolHelpTips = document.getElementById('toolHelpTips');
+            let activeIcon = null;
+
+            // ヘルプアイコンにイベントリスナーを追加
+            toolHelpIcons.forEach(icon => {
+                icon.addEventListener('click', function(e) {
+                    e.stopPropagation(); // イベントの伝播を停止
+                    
+                    const toolType = this.getAttribute('data-tool');
+                    const content = toolHelpContent[toolType];
+                    
+                    if (!content) return;
+                    
+                    // 内容を設定
+                    toolHelpTitle.textContent = content.title;
+                    toolHelpDescription.textContent = content.description;
+                    toolHelpTips.textContent = content.tips;
+                    
+                    // 画面内に収まるようにポップアップの位置を計算
+                    positionToolHelpPopup(this);
+                    
+                    // 以前のアクティブアイコンをリセット
+                    if (activeIcon && activeIcon !== this) {
+                        activeIcon.style.opacity = '0.7';
+                    }
+                    
+                    // 現在のアイコンをアクティブに
+                    this.style.opacity = '1';
+                    activeIcon = this;
+                });
+            });
+            
+            // ドキュメント上のクリックでポップアップを閉じる
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.help-icon') || e.target.closest('#toolHelpPopup')) return;
+                toolHelpPopup.style.display = 'none';
+                if (activeIcon) {
+                    activeIcon.style.opacity = '0.7';
+                    activeIcon = null;
+                }
+            });
+            
+            // ESCキーでポップアップを閉じる
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && toolHelpPopup.style.display !== 'none') {
+                    toolHelpPopup.style.display = 'none';
+                    if (activeIcon) {
+                        activeIcon.style.opacity = '0.7';
+                        activeIcon = null;
+                    }
+                }
+            });
+            
+            // ポップアップの位置を計算して配置する関数
+            function positionToolHelpPopup(iconElement) {
+                const iconRect = iconElement.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // 一時的にポップアップを表示してサイズを測定
+                toolHelpPopup.style.display = 'block';
+                toolHelpPopup.style.visibility = 'hidden';
+                toolHelpPopup.style.top = '0';
+                toolHelpPopup.style.left = '0';
+                
+                // ポップアップのサイズを取得
+                const popupRect = toolHelpPopup.getBoundingClientRect();
+                const popupWidth = popupRect.width;
+                const popupHeight = popupRect.height;
+                
+                // 左右位置の計算
+                let leftPos = iconRect.right + 20;
+                // 右側に表示するとはみ出す場合は左側に表示
+                if (leftPos + popupWidth > viewportWidth - 20) {
+                    leftPos = Math.max(20, iconRect.left - popupWidth - 20);
+                }
+                
+                // 上下位置の計算
+                // デフォルトではヘルプアイコンと同じ高さに表示
+                let topPos = iconRect.top;
+                
+                // 下部にはみ出す場合は上に移動
+                if (topPos + popupHeight > viewportHeight - 20) {
+                    // ポップアップが下にはみ出る場合は、画面内に収まるように上に移動
+                    const spaceBelow = viewportHeight - iconRect.top;
+                    if (spaceBelow < popupHeight) {
+                        topPos = Math.max(20, viewportHeight - popupHeight - 20);
+                    }
+                }
+                
+                // 上部にはみ出す場合は調整
+                if (topPos < 20) {
+                    topPos = 20;
+                }
+                
+                // ポップアップの位置を設定して表示
+                toolHelpPopup.style.top = `${topPos}px`;
+                toolHelpPopup.style.left = `${leftPos}px`;
+                toolHelpPopup.style.visibility = 'visible';
+            }
+        });
+    </script>
 </body>
 </html>

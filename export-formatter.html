@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QvPen Export Formatter</title>
+  <style>
+    :root {
+      --background-color: #f6f8fa;
+      --text-color: #24292e;
+      --border-color: #e1e4e8;
+      --highlight-color: #0366d6;
+      --button-background: #28a745;
+      --button-text: #ffffff;
+      --input-background: #ffffff;
+      --input-text: #24292e;
+      --warning-color: #d73a49;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-color);
+      color: var(--text-color);
+    }
+
+    header, footer {
+      background-color: var(--input-background);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      text-align: center;
+    }
+
+    header h1, footer p {
+      margin: 0;
+    }
+
+    footer a {
+      color: var(--highlight-color);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      width: 80%;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: var(--input-background);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(27, 31, 35, 0.12), 0 1px 2px rgba(27, 31, 35, 0.24);
+    }
+
+    h1 {
+      font-size: 2em;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-bottom: 1em;
+    }
+
+    textarea, input[type="file"] {
+      width: 100%;
+      background-color: var(--input-background);
+      color: var(--input-text);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    #logInput {
+      height: 200px;
+    }
+
+    button {
+      background-color: var(--button-background);
+      color: var(--button-text);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 20px;
+      margin: 10px 0;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    button:hover {
+      background-color: var(--highlight-color);
+    }
+
+    #exportList {
+      margin: 20px 0;
+    }
+
+    .export-item {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--input-background);
+    }
+
+    #message {
+      color: var(--warning-color);
+      margin: 10px 0;
+    }
+
+    article {
+      margin-top: 40px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text-color);
+    }
+
+    article h2, article h3 {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.3em;
+      margin-bottom: 1em;
+      font-weight: 600;
+    }
+
+    article h2 {
+      font-size: 1.5em;
+    }
+
+    article h3 {
+      font-size: 1.25em;
+    }
+
+    article p, article ul, article ol {
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    article ul, article ol {
+      padding-left: 20px;
+    }
+
+    article ul li, article ol li {
+      list-style-type: disc;
+    }
+
+    article code {
+      background-color: var(--input-background);
+      border-radius: 3px;
+      padding: 0.2em 0.4em;
+      font-size: 85%;
+      color: #e83e8c;
+    }
+
+    article blockquote {
+      background: var(--input-background);
+      border-left: 10px solid var(--border-color);
+      margin: 1.5em 10px;
+      padding: 0.5em 10px;
+      color: #6a737d;
+    }
+
+    article a {
+      color: var(--highlight-color);
+      text-decoration: none;
+    }
+
+    article a:hover {
+      text-decoration: underline;
+    }
+    
+    /* 表示オプションのスタイル */
+    #displayOptions {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: var(--input-background);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+    
+    .option-group {
+      margin-bottom: 15px;
+    }
+    
+    #applyDisplayOptions {
+      background-color: var(--highlight-color);
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>QvPen Export Formatter</h1>
+</header>
+<div class="container">
+  <input type="file" id="fileInput">
+  <textarea id="logInput" placeholder="ログデータを貼り付けてください"></textarea>
+  <button id="decodeButton">フォーマット</button>
+  
+  <!-- 表示オプションセクションを追加 -->
+  <div id="displayOptions">
+    <h3>表示オプション</h3>
+    <div class="option-group">
+      <label>
+        <input type="checkbox" id="showGridOption" checked> グリッドを表示
+      </label>
+    </div>
+    <div class="option-group">
+      <label>背景色：
+        <input type="color" id="backgroundColorOption" value="#1a1a2a">
+      </label>
+    </div>
+    <button id="applyDisplayOptions">適用</button>
+  </div>
+  
+  <div id="exportList"></div>
+  <div id="message" style="display:none;">データが見つかりませんでした。</div>
+  <button id="saveButton" style="display:none;">選択したデータを保存</button>
+  <article>
+    <h2>QvPen Exporterについて</h2>
+    <p>QvPenにエクスポート機能を追加した拡張機能と、エクスポートデータをシーンへLineRendererとしてインポートするEditor拡張機能です。</p>
+
+    <h3>Installation</h3>
+    <ol>
+      <li>vpmリポジトリを追加します
+        <a href="https://dolphiiiin.github.io/vpm-repos/">com.dolphiiiin.vpm</a>
+      </li>
+      <li>VCCまたはALCOMを開き、<code>QvPen Exporter</code>(<code>com.dolphiiiin.qvpen-exporter</code>)をインストールします</li>
+    </ol>
+
+    <h3>Dependencies</h3>
+    <ul>
+      <li><a href="https://github.com/ureishi/QvPen">QvPen</a> 3.3.3 or later</li>
+    </ul>
+
+    <h3>Usage</h3>
+    <h4>Export</h4>
+    <ol>
+      <li>ワールドにQvPenを設置します
+        <ul>
+          <li><code>Packages/QvPen Exporter/Prefab</code>にQvPen Exporterを導入したバージョンのQvPenが保存されています</li>
+        </ul>
+      </li>
+      <li>QvPenで描画を行います</li>
+      <li>QvPenのパネルにあるメニューに追加されているボタン<code>Export All</code>をインタラクトすることで、インタラクトしたパネルに属する全てのQvPenのデータをエクスポートします
+        <ul>
+          <li>エクスポートされたデータは、VRChatのログファイルに出力されます。</li>
+        </ul>
+        <blockquote>
+          <strong>⚠️Warning</strong><br>
+          VRChatのLoggingが有効になっていることを確認してください。VRChatのSettingsから<code>Debug</code> > <code>Logging</code>を有効になっていることを確認します。
+        </blockquote>
+      </li>
+      <li>エクスポートしたデータをQvPen Export Formatterで変換します
+        <ul>
+          <li><a href="https://dolphiiiin.github.io/qvpen-export-formatter/">QvPen Export Formatter</a></li>
+          <li>ページを開いてVRChatのログファイルをペーストするか、ファイルを参照して選択します</li>
+          <li><code>フォーマット</code>をクリックして、変換を実行します</li>
+          <li>エクスポートするデータを選択して、変換されたjsonファイルをダウンロードします</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h4>Import</h4>
+    <ol>
+      <li>Unityプロジェクトへエクスポートして変換したjsonファイルを、インポートします</li>
+      <li><code>Tools</code> > <code>QvPenImporter</code>を選択します</li>
+      <li><code>JSONファイル</code>にインポートしたjsonファイルを指定します</li>
+      <li><code>インポート</code>をクリックして、インポートを実行します</li>
+    </ol>
+  </article>
+</div>
+<footer>
+  <p>&copy; 2023 Dolphiiiin. <a href="https://github.com/Dolphiiiin">GitHub</a></p>
+</footer>
+<script>
+  document.getElementById('fileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('logInput').value = e.target.result;
+      };
+      reader.readAsText(file);
+    }
+  });
+
+  document.getElementById('decodeButton').addEventListener('click', function() {
+    const input = document.getElementById('logInput').value;
+    const exportPattern = /(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}).*?\[QVPEN_EXPORTER\] \[START_EXPORT\](.*?)\[QVPEN_EXPORTER\] \[END_EXPORT\]/gs;
+    const base64Pattern = /\[QVPEN_EXPORTER\] \[START\](.*?)\[END\]/g;
+
+    const exportList = document.getElementById('exportList');
+    const message = document.getElementById('message');
+    exportList.innerHTML = '';
+    message.style.display = 'none';
+    let exports = [];
+    let match;
+
+    while ((match = exportPattern.exec(input)) !== null) {
+      const timestamp = match[1];
+      const exportData = match[2];
+      const base64Data = [];
+      let base64Match;
+
+      while ((base64Match = base64Pattern.exec(exportData)) !== null) {
+        try {
+          const jsonString = atob(base64Match[1]);
+          const jsonObject = JSON.parse(jsonString);
+          base64Data.push(jsonObject);
+        } catch (e) {
+          console.error('デコードエラー:', e);
+        }
+      }
+
+      if (base64Data.length > 0) {
+        exports.push({
+          timestamp: timestamp,
+          data: base64Data
+        });
+
+        const div = document.createElement('div');
+        div.className = 'export-item';
+        div.innerHTML = `
+                        <input type="radio" name="export" value="${exports.length - 1}">
+                        <label>エクスポート時刻: ${timestamp} (${base64Data.length} データ)</label>
+                    `;
+        exportList.appendChild(div);
+      }
+    }
+
+    if (exports.length === 0) {
+      message.style.display = 'block';
+    } else {
+      document.getElementById('saveButton').style.display = 'block';
+    }
+
+    document.getElementById('saveButton').onclick = function() {
+      const selected = document.querySelector('input[name="export"]:checked');
+      if (selected) {
+        const selectedData = exports[selected.value];
+        const resultJson = {
+          timestamp: selectedData.timestamp,
+          exportedData: selectedData.data
+        };
+        const blob = new Blob([JSON.stringify(resultJson, null, 2)],
+                { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `export_${selectedData.timestamp.replace(/[^0-9]/g, '_')}.json`;
+        link.click();
+      }
+    };
+  });
+
+  // 表示オプションの処理
+  document.getElementById('applyDisplayOptions').addEventListener('click', function() {
+    const showGrid = document.getElementById('showGridOption').checked;
+    const backgroundColor = document.getElementById('backgroundColorOption').value;
+    
+    // 設定を保存
+    localStorage.setItem('qvpen-showGrid', showGrid);
+    localStorage.setItem('qvpen-backgroundColor', backgroundColor);
+    
+    // 設定が適用されたことを表示
+    const displayOptions = document.getElementById('displayOptions');
+    const message = document.createElement('div');
+    message.textContent = '設定が保存されました。表示設定は次回ビューアを開いたときに適用されます。';
+    message.style.color = 'var(--success-color)';
+    message.style.marginTop = '10px';
+    displayOptions.appendChild(message);
+    
+    // 3秒後にメッセージを消す
+    setTimeout(() => {
+      displayOptions.removeChild(message);
+    }, 3000);
+  });
+  
+  // 保存された設定を読み込む
+  window.addEventListener('DOMContentLoaded', function() {
+    const savedShowGrid = localStorage.getItem('qvpen-showGrid');
+    const savedBackgroundColor = localStorage.getItem('qvpen-backgroundColor');
+    
+    if (savedShowGrid !== null) {
+      document.getElementById('showGridOption').checked = savedShowGrid === 'true';
+    }
+    
+    if (savedBackgroundColor) {
+      document.getElementById('backgroundColorOption').value = savedBackgroundColor;
+    }
+  });
+</script>
+</body>
+</html>
